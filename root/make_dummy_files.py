@@ -2,19 +2,38 @@ import sys,numpy,math,getopt,random
 from array import array
 import ROOT as r
 
+##
+## function: fill 1D histogram with numbers randomly generated from a unit Gaussian
+##
 def make_file_with_hists(outfile):
     outfile += '_hist.root'
+    
+    ## open ROOT file for writing
     f = r.TFile.Open(outfile,'RECREATE')
+
+    ## create 1D histogram
     h1 = r.TH1F('h1rand','h1rand',100,-5,5)
+
+    ## generated random numbers from a unit Gaussian and fill histogram
     rands = numpy.random.normal(0,1,10**6)
     for rand in rands:
         h1.Fill(rand)
+
+    ## write histogram to file and close file
     f.Write()
     f.Close()
     return len(rands)
 
+##
+## function: write random data to branches of a TTree
+## branches: int, float, array of ints, array of floats, array of TLorentzVectors
+## TLorentzVector: https://root.cern.ch/root/html524/TLorentzVector
+## 
 def make_file_with_tree(outfile):
     outfile += '_tree.root'
+
+    ## open ROOT file for writing
+    ## create TTree
     ofile = r.TFile.Open(outfile,'RECREATE')
     t = r.TTree("tree","tree")
 
@@ -36,7 +55,7 @@ def make_file_with_tree(outfile):
     t._voL = voL
 
     ##
-    ## create TBranch
+    ## create TBranches
     ##
     t.Branch("i",i,"i/I")
     t.Branch("f",f,"f/F")
@@ -44,6 +63,7 @@ def make_file_with_tree(outfile):
     t.Branch("vof",vof)
     t.Branch("voL",voL)
 
+    ## fill variables to be written to tree branches
     for idx in range(10**3):
         voi.clear()
         vof.clear()
@@ -61,7 +81,10 @@ def make_file_with_tree(outfile):
             p4.SetPxPyPzE(rand[0],rand[1],rand[2],numpy.sqrt(numpy.sum(rand*rand)))
             voL.push_back(p4)
 
+        ## write branches to tree
         t.Fill()
+
+    ## write tree to file and close file
     ofile.Write()
     ofile.Close()
     return numpy.size(voi)
