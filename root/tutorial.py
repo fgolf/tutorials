@@ -81,7 +81,11 @@ def make_plots_from_tree(f, treename):
     plt.show()
 
 if __name__ == '__main__':
-    fname = sys.argv[1]
+    try:
+        fname = sys.argv[1]
+    except:
+        print 'Usage: python tutorial.py <filename>'
+        sys.exit(2)
     ifile = r.TFile(fname,'read')
     do_hist = False
     do_tree = False
